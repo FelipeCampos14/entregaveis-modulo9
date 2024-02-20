@@ -12,7 +12,7 @@ client.connect("localhost", 1892, 60)
 
 def verify_status(status_code, topic):
     if status_code == 0:
-        print(f"Publicado: {message}, no tópico: {topic}")
+        print(f"Publicado: {message}, no tópico: {topic}  \n")
     else:
         print("Falhou em publicar mensagem")
 
