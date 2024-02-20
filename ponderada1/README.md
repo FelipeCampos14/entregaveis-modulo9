@@ -2,6 +2,8 @@
 
 ## Vídeo
 
+https://github.com/FelipeCampos14/entregaveis-modulo9/assets/99193547/eb28d047-bc5c-466f-9626-95ea54d02e57
+
 ## Como usar
 Devemos fazer algumas instalações para rodar esse sistema MQTT
 
