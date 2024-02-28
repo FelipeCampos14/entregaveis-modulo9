@@ -9,8 +9,6 @@ import (
 	"time"
 )
 
-var MessageGenerator = rand.IntN(100)
-
 var Topics = [3]string{"RED", "OX", "NH3"}
 
 func randFloats(min, max float64) float64 {
@@ -31,6 +29,7 @@ func Publish(client MQTT.Client) {
 			fmt.Printf("Failed to publish to topic: %s", Topics[i])
 			panic(token.Error())
 		}
-		time.Sleep(8 * time.Second)
+
 	}
+	time.Sleep(5 * time.Second)
 }

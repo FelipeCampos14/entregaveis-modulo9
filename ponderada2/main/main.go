@@ -34,7 +34,9 @@ func main() {
 	}
 
 	subscriber.Subscribe("sensor/+", client, MessagePubHandler)
-	publisher.Publish(client)
+	for i:=0; i<4;i++{
+		publisher.Publish(client)
+	}
 
 	client.Disconnect(250)
 }

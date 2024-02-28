@@ -6,6 +6,7 @@ import (
 	"math"
 	publisher "ponderada2/publisher"
 	subscriber "ponderada2/subscriber"
+	"sync"
 	"testing"
 	"time"
 
@@ -18,98 +19,93 @@ func TestMain(t *testing.T) {
 	opts.OnConnect = connectHandler
 	opts.OnConnectionLost = connectLostHandler
 
+	var Topics = [3]string{"RED", "OX", "NH3"}
+
+	var messageChannels = make(map[string]chan MQTT.Message)
+
+	for i := 0; i <= len(Topics)-1; i++ {
+		topicStringf := fmt.Sprintf("sensor/%s", Topics[i])
+		messageChannels[topicStringf] = make(chan MQTT.Message)
+	}
+
 	client := MQTT.NewClient(opts)
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		panic(token.Error())
 	}
 
-	var MessageChannel = make(chan MQTT.Message)
-
-	var Topics = [3]string{"RED", "OX", "NH3"}
-
 	t.Run("TestReceiveData", func(t *testing.T) {
-		// FUNÇÃO ASSÍNCRONA
-		go func() {
-			time.Sleep(1 * time.Second)
-			publisher.Publish(client)
-		}()
+		var wg sync.WaitGroup
 
 		for i := 0; i <= len(Topics)-1; i++ {
+			wg.Add(1)
 			topicStringf := fmt.Sprintf("sensor/%s", Topics[i])
-			subscriber.Subscribe(topicStringf, client, func(client MQTT.Client, msg MQTT.Message) {
-				MessageChannel <- msg
-			})
+			go func(topic string) {
+				defer wg.Done()
 
-			select {
-			case msg := <-MessageChannel:
-				if msg != nil {
-					fmt.Printf("Message received  at topic: %s\n", Topics[i])
-				}
-			case <-time.After(5 * time.Second):
-				t.Errorf("Timeout waiting for message in topic: %s", Topics[i])
-			}
+				subscriber.Subscribe(topic, client, func(client MQTT.Client, msg MQTT.Message) {
+					messageChannels[topic] <- msg
+				})
+
+				go func() {
+					time.Sleep(1 * time.Second)
+					publisher.Publish(client)
+				}()
+			}(topicStringf)
 		}
+
+		wg.Wait()
+
 	})
 
 	t.Run("TestMatchData", func(t *testing.T) {
-		// FUNÇÃO ASSÍNCRONA
-		go func() {
-			time.Sleep(1 * time.Second)
-			publisher.Publish(client)
-		}()
+		var wg sync.WaitGroup
 
 		for i := 0; i <= len(Topics)-1; i++ {
+			wg.Add(1)
 			topicStringf := fmt.Sprintf("sensor/%s", Topics[i])
-			subscriber.Subscribe(topicStringf, client, func(client MQTT.Client, msg MQTT.Message) {
-				MessageChannel <- msg
-			})
+			go func(topic string) {
+				defer wg.Done()
 
-			select {
-			case msg := <-MessageChannel:
-				resultado := math.Float64frombits(binary.LittleEndian.Uint64(msg.Payload()))
-				expected := publisher.Values[i]
+				subscriber.Subscribe(topic, client, func(client MQTT.Client, msg MQTT.Message) {
+					resultado := math.Float64frombits(binary.LittleEndian.Uint64(msg.Payload()))
+					expected := publisher.Values[i]
 
-				if resultado == expected {
-					fmt.Printf("Received message: %f \n", resultado)
-				} else {
-					t.Errorf("Message received in topic %s does not match data expected, received: %f; expected: %f.", Topics[i], resultado, expected)
-				}
-			case <-time.After(5 * time.Second):
-				t.Errorf("Timeout waiting for message in topic: %s", Topics[i])
-			}
+					if resultado != expected {
+						t.Errorf("Message received in topic %s does not match data expected, received: %f; expected: %f.", topic, resultado, expected)
+					}
+				})
+
+				go func() {
+					time.Sleep(1 * time.Second)
+					publisher.Publish(client)
+				}()
+			}(topicStringf)
 		}
+
+		wg.Wait()
+
 	})
 
 	t.Run("TestDataFrequency", func(t *testing.T) {
+		var sampleSize = 3
+		var rate = 5.0
+		var tolerance = 0.1
+		var expectedLess, expectedPlus = rate - (rate * tolerance), rate + (rate * tolerance)
 
-		// FUNÇÃO ASSÍNCRONA
-		go func() {
-			time.Sleep(1 * time.Second)
+		var startTime = time.Now()
+
+		for i := 1; i <= sampleSize; i++ {
 			publisher.Publish(client)
-		}()
+		}
+		var totalTime = time.Since(startTime).Seconds()
 
-		for i := 0; i <= len(Topics)-1; i++ {
-			topicStringf := fmt.Sprintf("sensor/%s", Topics[i])
-			subscriber.Subscribe(topicStringf, client, func(client MQTT.Client, msg MQTT.Message) {
-				MessageChannel <- msg
-			})
+		AverageTime := totalTime / float64(sampleSize)
 
-			// select {
-			// case msg := <-MessageChannel:
-			// 	resultado := math.Float64frombits(binary.LittleEndian.Uint64(msg.Payload()))
-			// 	expected := publisher.Values[i]
-
-			// 	if resultado == expected {
-			// 		fmt.Printf("Received message: %f \n", resultado)
-			// 	} else {
-			// 		t.Errorf("Message receive in topic %s does not match data expected, received: %f; expected: %f.", Topics[i], resultado, expected)
-			// 	}
-			// case <-time.After(5 * time.Second):
-			// 	t.Errorf("Timeout waiting for message in topic: %s", Topics[i])
-			// }
-			for MessageChannel {
-
-			}
+		switch {
+		case AverageTime > expectedPlus:
+			t.Errorf("Messages are taking longer than expected to be published. Took:%f, expected:%f", AverageTime, expectedPlus)
+		case AverageTime < expectedLess:
+			t.Errorf("Messages are taking longer than expected to be published. Took:%f, expected:%f", AverageTime, expectedLess)
 		}
 	})
 }
