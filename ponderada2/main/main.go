@@ -6,7 +6,6 @@ import (
 	"math"
 	publisher "ponderada2/publisher"
 	subscriber "ponderada2/subscriber"
-
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 )
 
@@ -35,7 +34,7 @@ func main() {
 
 	subscriber.Subscribe("sensor/+", client, MessagePubHandler)
 	for i:=0; i<4;i++{
-		publisher.Publish(client)
+		publisher.Publish(client, 1)
 	}
 
 	client.Disconnect(250)
