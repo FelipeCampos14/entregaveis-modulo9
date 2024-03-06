@@ -16,12 +16,10 @@ import (
 )
 
 func TestMain(t *testing.T) {
-	broker := os.Getenv("BROKER_ADDR")
-	username := os.Getenv("USERNAME")
-	password := os.Getenv("PASSWORD")
+	broker := os.Getenv("BROKER_ADDR_SECRET")
+	username := os.Getenv("USERNAME_SECRET")
+	password := os.Getenv("PASSWORD_SECRET")
 
-	fmt.Printf("GitHub Secret - Username: %s\n", os.Getenv("USERNAME_SECRET"))
-	fmt.Printf("GitHub Secret - Password: %s\n", os.Getenv("PASSWORD_SECRET"))
 	if username == "" || password == "" {
 		// GitHub Secrets not found, try loading from .env file vai mais
 		err := godotenv.Load("../.env")
