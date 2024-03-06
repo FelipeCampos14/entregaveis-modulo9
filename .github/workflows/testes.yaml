@@ -1,4 +1,3 @@
-name: Testes automatizados 
 run-name: {{github.actor}} está fazendo um teste
 on:
   schedule:
