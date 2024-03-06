@@ -1,5 +1,6 @@
 {
     "conventionalCommits.scopes": [
-        "github-actions"
+        "github-actions",
+        "testes-automatizados"
     ]
 }

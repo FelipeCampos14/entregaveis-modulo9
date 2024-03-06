@@ -8,12 +8,17 @@ import (
 	subscriber "ponderada2/subscriber"
 	"testing"
 	"time"
+	"os"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
 func TestMain(t *testing.T) {
-	opts := mqtt.NewClientOptions().AddBroker("tcp://localhost:1891")
+	opts := mqtt.NewClientOptions()
+	opts.AddBroker(fmt.Sprintf("tls://%s:%d", broker, port))
+	opts.SetClientID("Ponderada4")
+	opts.SetUsername(os.Getenv("HIVE_USER"))
+	opts.SetPassword(os.Getenv("HIVE_PSWD"))
 	opts.SetDefaultPublishHandler(MessagePubHandler)
 	opts.OnConnect = connectHandler
 	opts.OnConnectionLost = connectLostHandler
