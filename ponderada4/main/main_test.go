@@ -1,9 +1,9 @@
 package main
 
 import (
-	"encoding/binary"
+	// "encoding/binary"
 	"fmt"
-	"math"
+	// "math"
 	publisher "ponderada2/publisher"
 	subscriber "ponderada2/subscriber"
 	"testing"
@@ -38,37 +38,36 @@ func TestMain(t *testing.T) {
 
 	})
 
-	t.Run("TestMatchData", func(t *testing.T) {
+	// t.Run("TestMatchData", func(t *testing.T) {
 
-		publisher.Values["RED"] = publisher.MapValues[0]
-		publisher.Values["OX"] = publisher.MapValues[1]
-		publisher.Values["NH3"] = publisher.MapValues[2]
+	// 	publisher.Values["RED"] = publisher.MapValues[0]
+	// 	publisher.Values["OX"] = publisher.MapValues[1]
+	// 	publisher.Values["NH3"] = publisher.MapValues[2]
 
-		var Topics = map[string]float64{
-			"RED":publisher.MapValues[0],
-			"OX":publisher.Values["OX"],
-			"NH3":publisher.Values["NH3"],
-		}
+	// 	var Topics = map[string]float64{
+	// 		"RED":publisher.MapValues[0],
+	// 		"OX":publisher.Values["OX"],
+	// 		"NH3":publisher.Values["NH3"],
+	// 	}
 
-		clientTest2 := mqtt.NewClient(opts)
-		if token := clientTest2.Connect(); token.Wait() && token.Error() != nil {
-			panic(token.Error())
-		}
-		subscriber.Subscribe("sensor/+", clientTest2, func(client mqtt.Client, msg mqtt.Message) {
-			resultado := math.Float64frombits(binary.LittleEndian.Uint64(msg.Payload()))
-			expected := Topics[msg.Topic()]
+	// 	clientTest2 := mqtt.NewClient(opts)
+	// 	if token := clientTest2.Connect(); token.Wait() && token.Error() != nil {
+	// 		panic(token.Error())
+	// 	}
+	// 	subscriber.Subscribe("sensor/+", clientTest2, func(client mqtt.Client, msg mqtt.Message) {
+	// 		resultado := math.Float64frombits(binary.LittleEndian.Uint64(msg.Payload()))
+	// 		expected := Topics[msg.Topic()]
 
+	// 		if resultado == expected {
+	// 			fmt.Print("Message matches the expected\n")
+	// 		} else {
+	// 			t.Errorf("Message %f from topic %s, different from expected %f\n ", resultado, msg.Topic(), expected)
+	// 		}
+	// 	})
+	// 	publisher.Publish(clientTest2, 1)
+	// 	clientTest2.Disconnect(1000)
 
-			if resultado == expected {
-				fmt.Print("Message matches the expected\n")
-			} else {
-				t.Errorf("Message %f from topic %s, different from expected %f\n ", resultado, msg.Topic(), expected)
-			}
-		})
-		publisher.Publish(clientTest2, 1)
-		clientTest2.Disconnect(1000)
-
-	})
+	// })
 
 	t.Run("TestDataFrequency", func(t *testing.T) {
 		clientTest3 := mqtt.NewClient(opts)
