@@ -21,7 +21,7 @@ func TestMain(t *testing.T) {
 
 	if username == "" || password == "" {
 		// GitHub Secrets not found, try loading from .env file
-		err := godotenv.Load()
+		err := godotenv.Load("../.env")
 		if err != nil {
 			fmt.Println("Error loading .env file")
 			return
