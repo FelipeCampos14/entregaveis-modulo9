@@ -13,5 +13,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Create .env
+        working-directory: ponderada4
+        run: 
+          touch .env
+          echo "BROKER_ADDR=${{ secrets.BROKER_ADDR_SECRET }}" >> .env
+          echo "USERNAME=${{ secrets.USERNAME_SECRET }}" >> .env
+          echo "PASSWORD=${{ secrets.PASSWORD_SECRET }}" >> .env
+
       - name: Go test
-        run: cd ponderada4/main && go test -v
+        working-directory: ponderada4/main
+        run: 
+          go test -v
+

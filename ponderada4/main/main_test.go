@@ -16,8 +16,10 @@ import (
 )
 
 func TestMain(t *testing.T) {
-	username := os.Getenv("USERNAME_SECRET")
-	password := os.Getenv("PASSWORD_SECRET")
+	broker := os.Getenv("BROKER_ADDR")
+	username := os.Getenv("USERNAME")
+	password := os.Getenv("PASSWORD")
+
 	fmt.Printf("GitHub Secret - Username: %s\n", os.Getenv("USERNAME_SECRET"))
 	fmt.Printf("GitHub Secret - Password: %s\n", os.Getenv("PASSWORD_SECRET"))
 	if username == "" || password == "" {
@@ -27,11 +29,10 @@ func TestMain(t *testing.T) {
 			fmt.Println("Error loading .env file")
 			return
 		}
-
+		broker = os.Getenv("BROKER_ADDR")
 		username = os.Getenv("HIVE_USER")
 		password = os.Getenv("HIVE_PSWD")
 	}
-	var broker = os.Getenv("BROKER_ADDR")
 	var port = 8883
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(fmt.Sprintf("tls://%s:%d", broker, port))

@@ -26,8 +26,8 @@ var MessagePubHandler MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Me
 
 func main() {
 
-	username := os.Getenv("USERNAME_SECRET")
-	password := os.Getenv("PASSWORD_SECRET")
+	username := os.Getenv("USERNAME")
+	password := os.Getenv("PASSWORD")
 	if username == "" || password == "" {
 		// GitHub Secrets not found, try loading from .env file
 		err := godotenv.Load("../.env")
