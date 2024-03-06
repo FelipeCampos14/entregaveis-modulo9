@@ -25,17 +25,29 @@ var MessagePubHandler MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Me
 }
 
 func main() {
-	err := godotenv.Load("../.env")
-	if err != nil {
-		fmt.Printf("Error loading .env file: %s", err)
+
+	username := os.Getenv("USERNAME_SECRET")
+	password := os.Getenv("PASSWORD_SECRET")
+
+	if username == "" || password == "" {
+		// GitHub Secrets not found, try loading from .env file
+		err := godotenv.Load()
+		if err != nil {
+			fmt.Println("Error loading .env file")
+			return
+		}
+
+		username = os.Getenv("HIVE_USER")
+		password = os.Getenv("HIVE_PSWD")
 	}
+
 	var broker = os.Getenv("BROKER_ADDR")
 	var port = 8883
 	opts := MQTT.NewClientOptions()
 	opts.AddBroker(fmt.Sprintf("tls://%s:%d", broker, port))
 	opts.SetClientID("Ponderada4")
-	opts.SetUsername(os.Getenv("HIVE_USER"))
-	opts.SetPassword(os.Getenv("HIVE_PSWD"))
+	opts.SetUsername(username)
+	opts.SetPassword(password)
 	opts.SetDefaultPublishHandler(MessagePubHandler)
 	opts.OnConnect = connectHandler
 	opts.OnConnectionLost = connectLostHandler
