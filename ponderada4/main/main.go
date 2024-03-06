@@ -3,12 +3,13 @@ package main
 import (
 	"encoding/binary"
 	"fmt"
-	MQTT "github.com/eclipse/paho.mqtt.golang"
-	godotenv "github.com/joho/godotenv"
 	"math"
 	"os"
 	publisher "ponderada2/publisher"
 	subscriber "ponderada2/subscriber"
+
+	MQTT "github.com/eclipse/paho.mqtt.golang"
+	godotenv "github.com/joho/godotenv"
 )
 
 var connectHandler MQTT.OnConnectHandler = func(client MQTT.Client) {
@@ -23,15 +24,13 @@ var MessagePubHandler MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Me
 	fmt.Printf("Recebido: %f do tópico: %s\n", math.Float64frombits(binary.LittleEndian.Uint64(msg.Payload())), msg.Topic())
 }
 
-var broker = os.Getenv("BROKER_ADDR")
-const port = 8883
-
 func main() {
 	err := godotenv.Load("../.env")
 	if err != nil {
 		fmt.Printf("Error loading .env file: %s", err)
 	}
-	
+	var broker = os.Getenv("BROKER_ADDR")
+	var port = 8883
 	opts := MQTT.NewClientOptions()
 	opts.AddBroker(fmt.Sprintf("tls://%s:%d", broker, port))
 	opts.SetClientID("Ponderada4")
