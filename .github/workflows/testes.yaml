@@ -9,4 +9,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Go test
-        run: cd main && go test -v
+        run: cd ponderada4/main && go test -v
