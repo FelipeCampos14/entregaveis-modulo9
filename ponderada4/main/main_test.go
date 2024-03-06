@@ -4,16 +4,21 @@ import (
 	// "encoding/binary"
 	"fmt"
 	// "math"
+	godotenv "github.com/joho/godotenv"
+	"os"
 	publisher "ponderada2/publisher"
 	subscriber "ponderada2/subscriber"
 	"testing"
 	"time"
-	"os"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
 func TestMain(t *testing.T) {
+	err := godotenv.Load("../.env")
+	if err != nil {
+		fmt.Printf("Error loading .env file: %s", err)
+	}
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(fmt.Sprintf("tls://%s:%d", broker, port))
 	opts.SetClientID("Ponderada4")
