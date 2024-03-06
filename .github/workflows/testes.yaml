@@ -6,8 +6,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      USERNAME_SECRET: ${{ secrets.USERNAME }}
-      PASSWORD_SECRET: ${{ secrets.PASSWORD }}
+      USERNAME_SECRET: ${{ secrets.USERNAME_SECRET }}
+      PASSWORD_SECRET: ${{ secrets.PASSWORD_SECRET }}
 
     steps:
       - name: Checkout code
